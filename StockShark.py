@@ -530,21 +530,21 @@ async def main():
         for w1 in range(8):
             for w2 in range(8):
                 if yellow_squares[w1][w2] != 0:
-                    if (w1 + w2) % 2 == FlipBoard:
+                    if (w1 + w2) % 2 == 0:
                         if FlipBoard:
-                            pygame.draw.rect(screen, (244, 246, 128), (100 * w2 + xshift, 700 - 100 * w1 + yshift, 100, 100))    
+                            pygame.draw.rect(screen, (244, 246, 128), (700 - 100 * w2 + xshift, 700 - 100 * w1 + yshift, 100, 100))    
                         else:
                             pygame.draw.rect(screen, (244, 246, 128), (100 * w2 + xshift, 100 * w1 + yshift, 100, 100))
                     else:
                         if FlipBoard:
-                            pygame.draw.rect(screen, (187, 204, 68), (100 * w2 + xshift, 700 - 100 * w1 + yshift, 100, 100))
+                            pygame.draw.rect(screen, (187, 204, 68), (700 - 100 * w2 + xshift, 700 - 100 * w1 + yshift, 100, 100))
                         else:
                             pygame.draw.rect(screen, (187, 204, 68), (100 * w2 + xshift, 100 * w1 + yshift, 100, 100))
         for w1 in range(8):
             for w2 in range(8):
                 if pos[w2][w1] != 0:
                     if FlipBoard:
-                        screen.blit(pos[w2][w1], (w1 * 100 + xshift, 700 - w2 * 100 + yshift))
+                        screen.blit(pos[w2][w1], (700 - w1 * 100 + xshift, 700 - w2 * 100 + yshift))
                     else:
                         screen.blit(pos[w2][w1], (w1 * 100 + xshift, w2 * 100 + yshift))
         if frame_flag:
@@ -560,7 +560,7 @@ async def main():
                         move.set_alpha(35)
                         pygame.draw.circle(move, pygame.Color(0, 0, 0), (50, 50), 16)
                         if FlipBoard:
-                            screen.blit(move, (w2 * 100 + xshift, 700 - w1 * 100 + yshift))
+                            screen.blit(move, (700 - w2 * 100 + xshift, 700 - w1 * 100 + yshift))
                         else:
                             screen.blit(move, (w2 * 100 + xshift, w1 * 100 + yshift))
                     else:
@@ -568,7 +568,7 @@ async def main():
                         move.set_alpha(35)
                         pygame.draw.circle(move, pygame.Color(0, 0, 0), (50, 50), 50, 8)
                         if FlipBoard:
-                            screen.blit(move, (w2 * 100 + xshift, 700 - w1 * 100 + yshift))
+                            screen.blit(move, (700 - w2 * 100 + xshift, 700 - w1 * 100 + yshift))
                         else:
                             screen.blit(move, (w2 * 100 + xshift, w1 * 100 + yshift))
 
@@ -608,7 +608,7 @@ async def main():
                 delete_movings.append(moving)
                 pos[moving[4] // 100][moving[5] // 100] = moving[6]
             if FlipBoard:
-                screen.blit(moving[6], (moving[3] + xshift, 700 - moving[2] + yshift))
+                screen.blit(moving[6], (700 - moving[3] + xshift, 700 - moving[2] + yshift))
             else:
                 screen.blit(moving[6], (moving[3] + xshift, moving[2] + yshift))
         for moving in delete_movings:
@@ -664,7 +664,8 @@ async def main():
             text = font.render(score, True, (64, 61, 57))
             if FlipBoard:
                 screen.blit(text, text.get_rect(center = (xshift - 30, 20 + yshift)))
-            screen.blit(text, text.get_rect(center = (xshift - 30, 780 + yshift)))
+            else:
+                screen.blit(text, text.get_rect(center = (xshift - 30, 780 + yshift)))
         else:
             text = font.render(score, True, WHITE)
             if FlipBoard:
@@ -687,6 +688,7 @@ async def main():
         
         if FlipBoard:
             x = 7 - x
+            y = 7 - y
 
         if flag_mouse_1:
             if pos[x][y] == 0 and flag == 0:
@@ -706,7 +708,7 @@ async def main():
                 pygame.draw.rect(frame, pygame.Color(255, 255, 255), (0, 0, 100, 100), 5)
                 frame_flag = True
                 if FlipBoard:
-                    frame_coords = (y * 100 + xshift, 700 - x * 100 + yshift)
+                    frame_coords = (700 - y * 100 + xshift, 700 - x * 100 + yshift)
                 else:
                     frame_coords = (y * 100 + xshift, x * 100 + yshift)
                 screen.blit(chosen_figure, (x_m - 50 + xshift, y_m - 50 + yshift))
@@ -719,7 +721,7 @@ async def main():
                 yellow_squares[i][j] = 2
                 yellow_squares[x][y] = 2
                 if FlipBoard:
-                    screen.blit(chosen_figure, (y * 100, 700 - x * 100))
+                    screen.blit(chosen_figure, (700 - y * 100, 700 - x * 100))
                 else:
                     screen.blit(chosen_figure, (y * 100, x * 100))
                 pos[x][y] = chosen_figure
@@ -727,7 +729,7 @@ async def main():
                 flag = 0
             else:
                 if FlipBoard:
-                    screen.blit(chosen_figure, (j * 100 + xshift, 700 - i * 100 + yshift))
+                    screen.blit(chosen_figure, (700 - j * 100 + xshift, 700 - i * 100 + yshift))
                 else:
                     screen.blit(chosen_figure, (j * 100 + xshift, i * 100 + yshift))
                 if (i, j) != (x, y) and Check(position):
@@ -770,7 +772,7 @@ async def main():
             pygame.draw.rect(frame, pygame.Color(255, 255, 255), (0, 0, 100, 100), 5)
             frame_flag = True
             if FlipBoard:
-                frame_coords = (y * 100 + xshift, 700 - x * 100 + yshift)
+                frame_coords = (700 - y * 100 + xshift, 700 - x * 100 + yshift)
             else:
                 frame_coords = (y * 100 + xshift, x * 100 + yshift)
             screen.blit(chosen_figure, (x_m - 50 + xshift, y_m - 50 + yshift))
@@ -786,7 +788,7 @@ async def main():
                 hide_legals()
             else:
                 if FlipBoard:
-                    screen.blit(chosen_figure, (j * 100 + xshift, 700 - i * 100 + yshift))
+                    screen.blit(chosen_figure, (700 - j * 100 + xshift, 700 - i * 100 + yshift))
                 else:
                     screen.blit(chosen_figure, (j * 100 + xshift, i * 100 + yshift))
                 pos[i][j] = chosen_figure
