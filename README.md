@@ -1,6 +1,6 @@
 # StockShark
 
-StockShark is a chess engine that knows how to play chess and evaluate a position. Rating on Chess.com ~2100 elo.
+StockShark is a chess engine that can play chess and evaluate a position. Rating on Chess.com ~2100 elo.
 
 All you need to start using the engine is to run the file StockShark.exe .
 
