@@ -1,4 +1,7 @@
 # StockShark
+
+StockShark is a chess engine that knows how to play chess and evaluate a position. Rating on Chess.com ~2100 elo.
+
 All you need to start using the engine is to run the file StockShark.exe .
 
 In some cases, if the file does not start correctly, you may need to rebuild the file StockShark.py . You can do this via the command line using pyinstaller. You can also install an icon on the exe file using the --icon flag. The icon can be found in the Images folder.
