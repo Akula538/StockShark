@@ -12,6 +12,9 @@ using namespace std;
 #include <unordered_map>
 #include <unordered_set>
 
+#pragma GCC optimize ("O3,unroll-loops")
+#pragma GCC target("avx2,bmi,bmi2,lzcnt,popcnt")
+
 
 double time_for_move = 5;
 double time_for_move_out = 15;
@@ -88,221 +91,222 @@ array<int, 6> material_costs = {100, 320, 330, 500, 900, 20000};
 
 // version 7
 array<int, 64> white_Pawn_opening =
-{ -15, -15, -15, -15, -15, -15, -15, -15,
-   75,  75,  75,  75,  75,  75,  75,  75,
-   82,  82,  85,  85,  85,  75,  82,  82,
-   85,  85,  95,  95,  95,  75,  85,  85,
-   95,  95, 100, 105, 105,  75,  95,  95,
-  100, 100, 105, 110, 110, 105, 100, 100,
-  105, 105, 115, 115, 115, 115, 105, 105,
-  785, 785, 785, 785, 785, 785, 785, 785};
+{-17, -11, -18, -18, -19, -17, -9, -19,
+72, 69, 69, 70, 82, 76, 72, 75,
+78, 84, 85, 87, 83, 79, 82, 79,
+89, 84, 91, 99, 91, 79, 90, 81,
+99, 97, 96, 100, 103, 78, 89, 103,
+94, 98, 104, 113, 111, 105, 105, 112,
+111, 99, 112, 115, 114, 105, 103, 105,
+782, 781, 794, 782, 782, 785, 785, 790};
 array<int, 64> white_Knight_opening =
-{270, 280, 280, 290, 290, 280, 280, 270,
- 275, 275, 300, 299, 299, 300, 275, 275,
- 280, 300, 300, 310, 310, 305, 300, 280,
- 300, 305, 310, 310, 310, 310, 305, 300,
- 300, 305, 310, 310, 310, 310, 305, 300,
- 280, 300, 305, 310, 310, 305, 300, 280,
- 275, 275, 300, 300, 300, 300, 275, 275,
- 270, 280, 280, 290, 290, 280, 280, 270};
+{271, 274, 284, 287, 291, 274, 280, 273,
+281, 279, 294, 298, 303, 301, 274, 276,
+279, 293, 296, 311, 304, 303, 303, 274,
+294, 304, 305, 312, 299, 310, 302, 292,
+297, 309, 305, 311, 303, 308, 308, 303,
+274, 300, 301, 312, 310, 301, 298, 285,
+277, 272, 300, 296, 299, 301, 273, 271,
+273, 270, 280, 291, 293, 276, 276, 273};
 array<int, 64> white_Bishop_opening =
-{310, 300, 290, 315, 315, 290, 300, 310, 
- 300, 315, 300, 305, 305, 300, 315, 300,
- 300, 305, 320, 310, 310, 320, 305, 300,
- 310, 310, 320, 320, 320, 320, 310, 310,
- 310, 310, 320, 320, 320, 320, 310, 310,
- 300, 305, 320, 310, 310, 320, 305, 300,
- 300, 315, 300, 305, 305, 300, 315, 300,
- 310, 300, 300, 315, 315, 300, 300, 310};
+{300, 299, 292, 313, 307, 290, 306, 312,
+292, 316, 300, 300, 304, 303, 313, 296,
+299, 302, 324, 309, 306, 319, 305, 303,
+311, 315, 320, 320, 323, 317, 308, 305,
+314, 300, 327, 316, 328, 328, 308, 309,
+297, 300, 322, 316, 311, 317, 301, 299,
+292, 311, 300, 302, 304, 304, 312, 301,
+307, 301, 289, 316, 321, 296, 298, 312};
 array<int, 64> white_Rook_opening =
-{500, 500, 500, 515, 520, 510, 500, 500,
- 500, 500, 500, 500, 500, 500, 500, 500,
- 510, 500, 500, 500, 500, 500, 500, 510,
- 510, 500, 500, 510, 510, 500, 500, 510,
- 510, 500, 500, 500, 500, 500, 500, 510,
- 510, 500, 500, 500, 500, 500, 500, 510,
- 520, 530, 530, 530, 530, 530, 530, 520,
- 520, 520, 520, 520, 520, 520, 520, 520};
+{497, 499, 498, 512, 524, 506, 488, 497,
+500, 499, 502, 504, 501, 496, 506, 496,
+509, 497, 496, 496, 498, 500, 501, 510,
+507, 504, 499, 514, 500, 490, 507, 502,
+506, 506, 499, 497, 504, 488, 495, 505,
+503, 490, 496, 494, 498, 502, 497, 500,
+515, 528, 528, 533, 526, 527, 529, 516,
+516, 516, 515, 520, 511, 518, 518, 525};
 array<int, 64> white_Queen_opening =
-{880, 890, 895, 900, 900, 895, 890, 880,
- 900, 900, 900, 900, 900, 900, 900, 900,
- 900, 900, 900, 900, 900, 900, 900, 900,
- 900, 900, 900, 900, 900, 900, 900, 900,
- 900, 900, 900, 900, 900, 900, 900, 900,
- 900, 900, 900, 900, 900, 900, 900, 900,
- 915, 915, 915, 915, 915, 915, 915, 915,
- 930, 930, 930, 930, 930, 930, 930, 930};
+{880, 893, 896, 902, 895, 898, 892, 887,
+899, 900, 900, 898, 902, 902, 897, 908,
+902, 899, 900, 897, 903, 898, 898, 905,
+902, 897, 901, 894, 897, 900, 904, 900,
+899, 902, 903, 896, 903, 904, 898, 899,
+895, 900, 899, 901, 897, 896, 893, 901,
+916, 912, 915, 916, 905, 916, 914, 914,
+926, 929, 936, 925, 938, 927, 929, 929};
 array<int, 64> white_King_opening =
-{20010, 20010, 20020, 20000, 20000, 20000, 20020, 20010,
- 20005, 20005, 20000, 20000, 20000, 20005, 20005, 20005,
- 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000,
- 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000,
- 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000,
- 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000,
- 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000,
- 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000};
+{20008, 20004, 20018, 20004, 19999, 19995, 20026, 20005,
+20011, 20003, 20001, 20001, 19990, 20003, 20004, 20005,
+19996, 20000, 19994, 20000, 19994, 19992, 20001, 20001,
+19989, 19997, 19998, 20000, 19998, 20000, 20004, 19999,
+20000, 19998, 20001, 19995, 19997, 20000, 20002, 19998,
+20002, 19993, 20006, 20000, 19996, 20000, 19991, 20000,
+20004, 20009, 20008, 20006, 19998, 20004, 20004, 19996,
+20003, 20001, 19991, 19991, 19999, 20001, 19995, 20005};
 array<int, 64> black_Pawn_opening =
-{-785, -785, -785, -785, -785, -785, -785, -785,
- -105, -105, -115, -115, -115, -115, -105, -105,
- -100, -100, -105, -110, -110, -105, -100, -100,
-  -95,  -95, -100, -105, -105,  -75,  -95,  -95,
-  -85,  -85,  -95,  -95,  -95,  -75,  -85,  -85,
-  -82,  -82,  -85,  -85,  -85,  -75,  -82,  -82,
-  -75,  -75,  -75,  -75,  -75,  -75,  -75,  -75,
-   15, 15, 15, 15, 15, 15, 15, 15};
+{-792, -782, -786, -787, -782, -785, -787, -777,
+-99, -110, -117, -119, -116, -113, -103, -105,
+-110, -103, -106, -110, -104, -107, -93, -98,
+-95, -89, -91, -101, -105, -77, -89, -90,
+-81, -90, -89, -88, -89, -77, -90, -83,
+-89, -85, -84, -87, -95, -73, -81, -82,
+-76, -72, -80, -76, -72, -73, -70, -73,
+15, 18, 14, 12, 15, 15, 15, 14};
 array<int, 64> black_Knight_opening =
-{-270, -280, -280, -290, -290, -280, -280, -270,
- -275, -275, -300, -300, -300, -300, -275, -275,
- -280, -300, -300, -310, -310, -305, -300, -280,
- -300, -305, -310, -310, -310, -310, -305, -300,
- -300, -305, -310, -310, -310, -310, -305, -300,
- -280, -300, -305, -310, -310, -305, -300, -280,
- -275, -275, -300, -299, -299, -300, -275, -275,
- -270, -280, -280, -290, -290, -280, -280, -270};
+{-274, -275, -281, -294, -291, -282, -278, -274,
+-281, -272, -293, -295, -293, -300, -276, -278,
+-279, -302, -296, -310, -309, -305, -293, -275,
+-297, -302, -308, -296, -304, -310, -304, -305,
+-305, -304, -305, -312, -309, -313, -307, -307,
+-271, -306, -303, -312, -311, -304, -289, -289,
+-271, -267, -303, -293, -293, -308, -280, -273,
+-271, -281, -277, -290, -288, -281, -283, -272};
 array<int, 64> black_Bishop_opening =
-{ -310, -300, -300, -315, -315, -300, -300, -310,
-  -300, -315, -300, -305, -305, -300, -315, -300,
-  -300, -305, -320, -310, -310, -320, -305, -300,
-  -310, -310, -320, -320, -320, -320, -310, -310, 
-  -310, -310, -320, -320, -320, -320, -310, -310,
-  -300, -305, -320, -310, -310, -320, -305, -300,
-  -300, -315, -300, -305, -305, -300, -315, -300,
-  -310, -300, -290, -315, -315, -290, -300, -310};
+{-307, -291, -305, -311, -318, -296, -306, -308,
+-295, -308, -292, -304, -300, -295, -321, -300,
+-306, -299, -313, -307, -314, -327, -304, -298,
+-308, -302, -323, -320, -320, -324, -311, -315,
+-316, -303, -312, -317, -322, -314, -316, -312,
+-298, -302, -320, -309, -311, -319, -293, -297,
+-295, -307, -301, -299, -294, -309, -327, -304,
+-308, -298, -286, -317, -309, -282, -297, -306};
 array<int, 64> black_Rook_opening =
-{-520, -520, -520, -520, -520, -520, -520, -520,
- -520, -530, -530, -530, -530, -530, -530, -520,
- -510, -500, -500, -500, -500, -500, -500, -510,
- -510, -500, -500, -500, -500, -500, -500, -510,
- -510, -500, -500, -510, -510, -500, -500, -510,
- -510, -500, -500, -500, -500, -500, -500, -510,
- -500, -500, -500, -500, -500, -500, -500, -500,
- -500, -500, -500, -515, -520, -510, -500, -500};
+{-512, -521, -521, -516, -519, -516, -523, -517,
+-523, -529, -532, -531, -524, -526, -530, -522,
+-511, -496, -496, -498, -504, -497, -493, -506,
+-502, -499, -502, -501, -499, -500, -503, -511,
+-508, -495, -499, -510, -510, -500, -508, -511,
+-509, -501, -500, -496, -504, -500, -503, -506,
+-494, -506, -507, -495, -486, -501, -505, -500,
+-495, -499, -504, -515, -511, -513, -493, -499};
 array<int, 64> black_Queen_opening =
-{-930, -930, -930, -930, -930, -930, -930, -930,
- -915, -915, -915, -915, -915, -915, -915, -915,
- -900, -900, -900, -900, -900, -900, -900, -900,
- -900, -900, -900, -900, -900, -900, -900, -900,
- -900, -900, -900, -900, -900, -900, -900, -900,
- -900, -900, -900, -900, -900, -900, -900, -900,
- -900, -900, -900, -900, -900, -900, -900, -900,
- -880, -890, -895, -900, -900, -895, -890, -880};
+{-928, -930, -919, -928, -930, -926, -937, -928,
+-915, -906, -909, -920, -912, -919, -918, -916,
+-904, -901, -901, -906, -901, -898, -899, -891,
+-896, -899, -904, -896, -906, -901, -898, -897,
+-904, -895, -897, -897, -900, -907, -893, -894,
+-903, -896, -901, -894, -896, -896, -899, -904,
+-899, -893, -903, -900, -902, -901, -891, -899,
+-875, -895, -888, -901, -898, -891, -890, -878};
 array<int, 64> black_King_opening =
-{-20000, -20000, -20000, -20000, -20000, -20000, -20000, -20000,
- -20000, -20000, -20000, -20000, -20000, -20000, -20000, -20000,
- -20000, -20000, -20000, -20000, -20000, -20000, -20000, -20000,
- -20000, -20000, -20000, -20000, -20000, -20000, -20000, -20000,
- -20000, -20000, -20000, -20000, -20000, -20000, -20000, -20000,
- -20000, -20000, -20000, -20000, -20000, -20000, -20000, -20000,
- -20005, -20005, -20000, -20000, -20000, -20005, -20005, -20005,
- -20010, -20010, -20020, -20000, -20000, -20000, -20020, -20010};
+{-20007, -19994, -19998, -19995, -20002, -20001, -20006, -19997,
+-19993, -20003, -20004, -20000, -20000, -20006, -19996, -20001,
+-20012, -19996, -19997, -20000, -20000, -19992, -19999, -19999,
+-20001, -20000, -19999, -20008, -20007, -20000, -19994, -20001,
+-20007, -19991, -20000, -19999, -19995, -19999, -20004, -20006,
+-19996, -19986, -19995, -19999, -20004, -20008, -20004, -20004,
+-20005, -19999, -20001, -20001, -20001, -20007, -20004, -19998,
+-20009, -19999, -20026, -19995, -20005, -19996, -20019, -20008};
 array<int, 64> white_Pawn_endgame =
-{  0,   0,   0,   0,   0,   0,   0,   0,
- 100, 100, 100, 100, 100, 100, 100, 100,
- 102, 102, 102, 102, 102, 102, 102, 102,
- 105, 105, 105, 105, 105, 105, 105, 105,
- 110, 110, 110, 110, 110, 110, 110, 110,
- 115, 115, 115, 115, 115, 115, 115, 115,
- 120, 120, 120, 120, 120, 120, 120, 120,
- 900, 900, 900, 900, 900, 900, 900, 900};
+{0, 1, 9, 3, 0, 1, 2, 8,
+100, 105, 107, 93, 99, 89, 96, 98,
+97, 99, 103, 102, 108, 99, 107, 100,
+101, 94, 100, 108, 105, 109, 99, 105,
+112, 109, 111, 111, 112, 109, 111, 110,
+111, 111, 116, 114, 107, 111, 122, 113,
+119, 119, 122, 111, 124, 120, 130, 119,
+898, 895, 896, 895, 901, 902, 896, 894};
 array<int, 64> white_Knight_endgame =
-{280, 285, 285, 285, 285, 285, 285, 280,
- 285, 290, 290, 290, 290, 290, 290, 285,
- 285, 290, 300, 300, 300, 300, 290, 285,
- 285, 290, 300, 305, 305, 300, 290, 285,
- 285, 290, 300, 305, 305, 300, 290, 285,
- 285, 290, 300, 300, 300, 300, 290, 285,
- 285, 290, 390, 290, 290, 290, 290, 285,
- 280, 285, 285, 285, 285, 285, 285, 280};
+{279, 273, 274, 286, 280, 287, 283, 282,
+274, 296, 297, 293, 291, 296, 289, 293,
+278, 292, 293, 295, 306, 296, 286, 282,
+295, 294, 293, 299, 314, 299, 287, 286,
+280, 297, 293, 310, 306, 304, 290, 282,
+282, 288, 297, 302, 300, 299, 290, 288,
+276, 289, 390, 296, 294, 303, 287, 281,
+282, 288, 277, 283, 292, 280, 285, 281};
 array<int, 64> white_Bishop_endgame =
-{300, 295, 295, 295, 295, 295, 295, 300,
- 295, 310, 300, 300, 300, 300, 310, 295,
- 295, 300, 315, 310, 310, 315, 300, 295,
- 295, 300, 310, 315, 315, 310, 300, 295,
- 295, 300, 310, 315, 315, 310, 300, 295,
- 295, 300, 315, 310, 310, 315, 300, 295,
- 295, 310, 300, 300, 300, 300, 310, 295,
- 300, 295, 295, 295, 295, 295, 295, 300};
+{300, 289, 292, 287, 294, 295, 297, 298,
+291, 310, 295, 306, 306, 307, 309, 295,
+302, 295, 314, 313, 309, 317, 302, 301,
+284, 299, 312, 315, 319, 307, 298, 303,
+292, 300, 302, 320, 317, 309, 301, 294,
+290, 296, 308, 311, 312, 306, 295, 294,
+288, 304, 305, 297, 301, 297, 307, 294,
+306, 298, 295, 294, 295, 295, 293, 291};
 array<int, 64> white_Rook_endgame =
-{505, 505, 505, 505, 505, 505, 505, 505,
- 500, 500, 500, 500, 500, 500, 500, 500,
- 500, 500, 500, 500, 500, 500, 500, 500,
- 500, 500, 500, 500, 500, 500, 500, 500,
- 500, 500, 500, 500, 500, 500, 500, 500,
- 500, 500, 500, 500, 500, 500, 500, 500,
- 515, 515, 515, 515, 515, 515, 515, 515,
- 505, 505, 505, 505, 505, 505, 505, 505};
+{503, 505, 505, 496, 497, 507, 495, 500,
+501, 499, 494, 489, 492, 496, 495, 499,
+499, 506, 499, 502, 498, 501, 500, 499,
+498, 507, 495, 494, 496, 500, 502, 499,
+501, 491, 499, 495, 499, 507, 495, 505,
+501, 496, 494, 504, 505, 494, 493, 503,
+514, 522, 511, 509, 520, 516, 507, 517,
+499, 507, 503, 504, 505, 508, 493, 505};
 array<int, 64> white_Queen_endgame =
-{900, 900, 900, 900, 900, 900, 900, 900,
- 900, 900, 900, 900, 900, 900, 900, 900,
- 900, 900, 900, 900, 900, 900, 900, 900,
- 900, 900, 900, 900, 900, 900, 900, 900,
- 900, 900, 900, 900, 900, 900, 900, 900,
- 900, 900, 900, 900, 900, 900, 900, 900,
- 900, 900, 900, 900, 900, 900, 900, 900,
- 900, 900, 900, 900, 900, 900, 900, 900};
+{893, 896, 908, 902, 901, 903, 900, 896,
+892, 897, 894, 892, 899, 896, 903, 904,
+901, 895, 896, 901, 895, 901, 893, 899,
+897, 896, 905, 900, 905, 893, 896, 902,
+893, 904, 904, 905, 898, 896, 903, 900,
+902, 897, 903, 893, 896, 893, 903, 910,
+902, 896, 898, 897, 897, 904, 897, 899,
+899, 894, 904, 910, 897, 901, 890, 898};
 array<int, 64> white_King_endgame =
-{20000, 20000, 20005, 20005, 20005, 20005, 20000, 20000,
- 20000, 20005, 20005, 20010, 20010, 20005, 20005, 20000,
- 20005, 20005, 20010, 20015, 20015, 20010, 20010, 20005,
- 20010, 20010, 20015, 20020, 20020, 20015, 20010, 20010,
- 20010, 20015, 20020, 20020, 20020, 20020, 20015, 20010,
- 20015, 20020, 20025, 20025, 20025, 20025, 20020, 20015,
- 20025, 20025, 20025, 20025, 20025, 20025, 20025, 20025,
- 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000};
+{20000, 19997, 20005, 19999, 20002, 19999, 19996, 20007,
+20000, 20006, 20003, 20016, 20012, 20005, 19999, 20005,
+20015, 20008, 20011, 20019, 20013, 20000, 20008, 20006,
+20006, 20012, 20019, 20019, 20021, 20020, 20008, 20006,
+19999, 20018, 20016, 20029, 20020, 20017, 20013, 20012,
+20015, 20026, 20021, 20025, 20021, 20030, 20020, 20013,
+20016, 20032, 20028, 20017, 20028, 20025, 20021, 20029,
+20001, 19994, 19996, 20000, 20001, 20002, 20000, 20007};
 array<int, 64> black_Pawn_endgame =
-{-900, -900, -900, -900, -900, -900, -900, -900,
- -120, -120, -120, -120, -120, -120, -120, -120,
- -115, -115, -115, -115, -115, -115, -115, -115,
- -110, -110, -110, -110, -110, -110, -110, -110,
- -105, -105, -105, -105, -105, -105, -105, -105,
- -102, -102, -102, -102, -102, -102, -102, -102,
- -100, -100, -100, -100, -100, -100, -100, -100,
-    0,    0,    0,    0,    0,    0,    0,    0};
+{-894, -894, -899, -900, -896, -895, -899, -897,
+-120, -119, -118, -125, -122, -113, -116, -122,
+-122, -115, -115, -109, -115, -120, -113, -112,
+-112, -107, -115, -108, -109, -106, -104, -106,
+-108, -106, -97, -96, -105, -106, -98, -108,
+-101, -106, -107, -97, -101, -101, -96, -101,
+-106, -99, -104, -99, -101, -96, -95, -101,
+2, 3, 3, 0, -2, -5, 2, -12};
 array<int, 64> black_Knight_endgame =
-{-280, -285, -285, -285, -285, -285, -285, -280,
- -285, -290, -290, -290, -290, -290, -290, -285,
- -285, -290, -300, -300, -300, -300, -290, -285,
- -285, -290, -300, -305, -305, -300, -290, -285,
- -285, -290, -300, -305, -305, -300, -290, -285,
- -285, -290, -300, -300, -300, -300, -290, -285,
- -285, -290, -390, -290, -290, -290, -290, -285,
- -280, -285, -285, -285, -285, -285, -285, -280};
+{-277, -284, -280, -289, -278, -285, -280, -280,
+-283, -287, -288, -299, -295, -285, -287, -284,
+-283, -288, -304, -299, -298, -298, -285, -281,
+-285, -289, -300, -299, -302, -295, -286, -284,
+-293, -283, -290, -311, -306, -304, -285, -282,
+-288, -292, -297, -294, -300, -297, -286, -287,
+-286, -287, -388, -289, -291, -284, -292, -284,
+-279, -294, -285, -291, -285, -284, -280, -281};
 array<int, 64> black_Bishop_endgame =
-{-300, -295, -295, -295, -295, -295, -295, -300,
- -295, -310, -300, -300, -300, -300, -310, -295,
- -295, -300, -315, -310, -310, -315, -300, -295,
- -295, -300, -310, -315, -315, -310, -300, -295,
- -295, -300, -310, -315, -315, -310, -300, -295,
- -295, -300, -315, -310, -310, -315, -300, -295,
- -295, -310, -300, -300, -300, -300, -310, -295,
- -300, -295, -295, -295, -295, -295, -295, -300};
+{-303, -296, -296, -296, -286, -297, -296, -298,
+-292, -303, -307, -299, -298, -304, -310, -293,
+-288, -293, -315, -312, -315, -312, -306, -303,
+-295, -299, -311, -324, -316, -309, -302, -291,
+-297, -290, -309, -302, -314, -304, -296, -292,
+-297, -297, -313, -305, -313, -320, -294, -300,
+-293, -306, -291, -299, -304, -302, -310, -307,
+-295, -293, -293, -288, -290, -293, -296, -299};
 array<int, 64> black_Rook_endgame =
-{-505, -505, -505, -505, -505, -505, -505, -505,
- -515, -515, -515, -515, -515, -515, -515, -515,
- -500, -500, -500, -500, -500, -500, -500, -500,
- -500, -500, -500, -500, -500, -500, -500, -500,
- -500, -500, -500, -500, -500, -500, -500, -500,
- -500, -500, -500, -500, -500, -500, -500, -500,
- -500, -500, -500, -500, -500, -500, -500, -500,
- -505, -505, -505, -505, -505, -505, -505, -505};
+{-506, -502, -502, -503, -507, -501, -507, -506,
+-517, -511, -510, -520, -507, -515, -511, -514,
+-491, -501, -497, -502, -500, -497, -500, -499,
+-500, -496, -496, -496, -497, -491, -496, -492,
+-496, -497, -499, -498, -494, -499, -506, -505,
+-487, -507, -496, -497, -502, -505, -503, -497,
+-496, -504, -494, -505, -506, -505, -497, -501,
+-511, -502, -501, -501, -505, -502, -503, -503};
 array<int, 64> black_Queen_endgame =
-{-900, -900, -900, -900, -900, -900, -900, -900,
- -900, -900, -900, -900, -900, -900, -900, -900,
- -900, -900, -900, -900, -900, -900, -900, -900,
- -900, -900, -900, -900, -900, -900, -900, -900,
- -900, -900, -900, -900, -900, -900, -900, -900,
- -900, -900, -900, -900, -900, -900, -900, -900,
- -900, -900, -900, -900, -900, -900, -900, -900,
- -900, -900, -900, -900, -900, -900, -900, -900};
+{-895, -906, -889, -893, -898, -896, -905, -897,
+-896, -900, -900, -894, -904, -894, -897, -900,
+-896, -896, -898, -906, -900, -905, -897, -901,
+-894, -898, -902, -900, -896, -904, -900, -904,
+-897, -894, -892, -899, -906, -898, -892, -900,
+-901, -898, -906, -899, -902, -901, -895, -897,
+-903, -899, -894, -899, -897, -895, -898, -904,
+-900, -903, -903, -904, -906, -905, -898, -905};
 array<int, 64> black_King_endgame =
-{-20000, -20000, -20000, -20000, -20000, -20000, -20000, -20000,
- -20025, -20025, -20025, -20025, -20025, -20025, -20025, -20025,
- -20015, -20020, -20025, -20025, -20025, -20025, -20020, -20015,
- -20010, -20015, -20020, -20020, -20020, -20020, -20015, -20010,
- -20010, -20010, -20015, -20020, -20020, -20015, -20010, -20010,
- -20005, -20005, -20010, -20015, -20015, -20010, -20010, -20005,
- -20000, -20005, -20005, -20010, -20010, -20005, -20005, -20000,
- -20000, -20000, -20005, -20005, -20005, -20005, -20000, -20000};
+{-20000, -19993, -19993, -19996, -20002, -19989, -19995, -20000,
+-20023, -20021, -20021, -20026, -20018, -20025, -20023, -20029,
+-20012, -20030, -20024, -20029, -20015, -20022, -20018, -20016,
+-20007, -20009, -20025, -20017, -20012, -20021, -20012, -20018,
+-20012, -20010, -20014, -20025, -20026, -20007, -20011, -20013,
+-20010, -20005, -20011, -20017, -20019, -20018, -20013, -20000,
+-20002, -19996, -20002, -20017, -20014, -19998, -20004, -20001,
+-20001, -19999, -20005, -20005, -20008, -20000, -20003, -19997};
+
 
 array<array<int, 64>, 12> piece_square_tables_opening = {white_Pawn_opening, white_Knight_opening, white_Bishop_opening, white_Rook_opening, white_Queen_opening, white_King_opening, black_Pawn_opening, black_Knight_opening, black_Bishop_opening, black_Rook_opening, black_Queen_opening, black_King_opening};
 
@@ -328,7 +332,6 @@ array<array<unsigned long long, 64>, 14> zobrist_64 = {{{2822359641225138343ULL,
 array<array<unsigned long long, 64>, 14> zobrist = zobrist_64;
 
 unordered_map<unsigned long long, int> hash_table;
-
 
 unsigned long long first_one(unsigned long long x){
   if (x == 0) {return 0;};
@@ -624,7 +627,7 @@ void print_move(int move){
 
 
 
-bool Check(pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>, pair<array<int, 3>, unsigned long long>> position, int tomove_ = 100){
+bool Check(const pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>, pair<array<int, 3>, unsigned long long>>& position, int tomove_ = 100){
   int tomove = tomove_;
   if (tomove_ == 100) {tomove = ((position.first.first[12] >> 4) & 1ULL) * (-6) + 6;}
   tomove = -tomove + 6;
@@ -658,32 +661,32 @@ bool Check(pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>
 
 
 
-unsigned long long PawnMoves(pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>, pair<array<int, 3>, unsigned long long>> position, int square){
+unsigned long long PawnMoves(const pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>, pair<array<int, 3>, unsigned long long>>& position, int square){
   if ((position.first.first[12] >> 4) & 1ULL) {
     unsigned long long ans = 0ULL;
     ans |= (one_mask[square + 8]) & ~(position.first.first[13] | position.first.first[14]);
     ans |= (ans << 8) & ~(position.first.first[13] | position.first.first[14]) & RANK_4;
-    ans |= (one_mask[square + 7]) & ~RANK_H & (position.first.first[14] | position.first.first[15]) ;
+    ans |= (one_mask[square + 7]) & ~RANK_H & (position.first.first[14] | position.first.first[15]);
     ans |= (one_mask[square + 9]) & ~RANK_A & (position.first.first[14] | position.first.first[15]);
     return ans;
   }
   unsigned long long ans = 0ULL;
   ans |= (one_mask[square - 8]) & ~(position.first.first[13] | position.first.first[14]);
   ans |= (ans >> 8) & ~(position.first.first[13] | position.first.first[14]) & RANK_5;
-  ans |= (one_mask[square - 7]) & ~RANK_A & (position.first.first[13] | position.first.first[15]) ;
+  ans |= (one_mask[square - 7]) & ~RANK_A & (position.first.first[13] | position.first.first[15]);
   ans |= (one_mask[square - 9]) & ~RANK_H & (position.first.first[13] | position.first.first[15]);
   return ans;
 }
 
 
 
-unsigned long long KnightMoves(pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>, pair<array<int, 3>, unsigned long long>> position, int square){
+unsigned long long KnightMoves(const pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>, pair<array<int, 3>, unsigned long long>>& position, int square){
   return knight_moves[square] & ~(position.first.first[14 - ((position.first.first[12] >> 4) & 1ULL)]);
 }
 
 
 
-unsigned long long BishopMoves(pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>, pair<array<int, 3>, unsigned long long>> position, int square){
+unsigned long long BishopMoves(const pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>, pair<array<int, 3>, unsigned long long>>& position, int square){
   unsigned long long ans = 0ULL;
   unsigned long long pieces = position.first.first[13] | position.first.first[14];
   ans |= right_up_ray[bitScanForward(right_up_ray[square] & pieces)] ^ right_up_ray[square];
@@ -695,7 +698,7 @@ unsigned long long BishopMoves(pair<pair<array<unsigned long long, 16>, multiset
 
 
 
-unsigned long long RookMoves(pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>, pair<array<int, 3>, unsigned long long>> position, int square){
+unsigned long long RookMoves(const pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>, pair<array<int, 3>, unsigned long long>>& position, int square){
   unsigned long long ans = 0ULL;
   unsigned long long pieces = position.first.first[13] | position.first.first[14];
   ans |= right_ray[bitScanForward(right_ray[square] & pieces)] ^ right_ray[square];
@@ -707,7 +710,7 @@ unsigned long long RookMoves(pair<pair<array<unsigned long long, 16>, multiset<u
 
 
 
-unsigned long long QueenMoves(pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>, pair<array<int, 3>, unsigned long long>> position, int square){
+unsigned long long QueenMoves(const pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>, pair<array<int, 3>, unsigned long long>>& position, int square){
   return BishopMoves(position, square) | RookMoves(position, square);
 }
 
@@ -727,13 +730,13 @@ unsigned long long KingMoves(pair<pair<array<unsigned long long, 16>, multiset<u
 }
 
 
-unsigned long long KnightAttacks(pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>, pair<array<int, 3>, unsigned long long>> position, int square){
+unsigned long long KnightAttacks(const pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>, pair<array<int, 3>, unsigned long long>>& position, int square){
   return knight_moves[square];
 }
 
 
 
-unsigned long long BishopAttacks(pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>, pair<array<int, 3>, unsigned long long>> position, int square){
+unsigned long long BishopAttacks(const pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>, pair<array<int, 3>, unsigned long long>>& position, int square){
   unsigned long long ans = 0ULL;
   unsigned long long pieces = position.first.first[13] | position.first.first[14];
   ans |= right_up_ray[bitScanForward(right_up_ray[square] & pieces)] ^ right_up_ray[square];
@@ -745,7 +748,7 @@ unsigned long long BishopAttacks(pair<pair<array<unsigned long long, 16>, multis
 
 
 
-unsigned long long RookAttacks(pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>, pair<array<int, 3>, unsigned long long>> position, int square){
+unsigned long long RookAttacks(const pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>, pair<array<int, 3>, unsigned long long>>& position, int square){
   unsigned long long ans = 0ULL;
   unsigned long long pieces = position.first.first[13] | position.first.first[14];
   ans |= right_ray[bitScanForward(right_ray[square] & pieces)] ^ right_ray[square];
@@ -757,16 +760,17 @@ unsigned long long RookAttacks(pair<pair<array<unsigned long long, 16>, multiset
 
 
 
-unsigned long long QueenAttacks(pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>, pair<array<int, 3>, unsigned long long>> position, int square){
+unsigned long long QueenAttacks(const pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>, pair<array<int, 3>, unsigned long long>>& position, int square){
   return BishopAttacks(position, square) | RookAttacks(position, square);
 }
 
 
 
 
-unsigned long long PawnTakes(pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>, pair<array<int, 3>, unsigned long long>> position, int square){
+unsigned long long PawnTakes(const pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>, pair<array<int, 3>, unsigned long long>>& position, int square){
   if ((position.first.first[12] >> 4) & 1ULL) {
     unsigned long long ans = 0ULL;
+  
     ans |= (one_mask[square + 7]) & ~RANK_H & (position.first.first[14] | position.first.first[15]) ;
     ans |= (one_mask[square + 9]) & ~RANK_A & (position.first.first[14] | position.first.first[15]);
     ans |= (one_mask[square + 8]) & ~(position.first.first[13] | position.first.first[14]) & RANK_8;
@@ -781,13 +785,13 @@ unsigned long long PawnTakes(pair<pair<array<unsigned long long, 16>, multiset<u
 
 
 
-unsigned long long KnightTakes(pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>, pair<array<int, 3>, unsigned long long>> position, int square){
+unsigned long long KnightTakes(const pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>, pair<array<int, 3>, unsigned long long>>& position, int square){
   return knight_moves[square] & position.first.first[13 + ((position.first.first[12] >> 4) & 1ULL)];
 }
 
 
 
-unsigned long long BishopTakes(pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>, pair<array<int, 3>, unsigned long long>> position, int square){
+unsigned long long BishopTakes(const pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>, pair<array<int, 3>, unsigned long long>>& position, int square){
   unsigned long long ans = 0ULL;
   unsigned long long pieces = position.first.first[13] | position.first.first[14];
   ans |= first_one(right_up_ray[square] & pieces);
@@ -799,7 +803,7 @@ unsigned long long BishopTakes(pair<pair<array<unsigned long long, 16>, multiset
 
 
 
-unsigned long long RookTakes(pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>, pair<array<int, 3>, unsigned long long>> position, int square){
+unsigned long long RookTakes(const pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>, pair<array<int, 3>, unsigned long long>>& position, int square){
   unsigned long long ans = 0ULL;
   unsigned long long pieces = position.first.first[13] | position.first.first[14];
   ans |= first_one(right_ray[square] & pieces);
@@ -811,13 +815,13 @@ unsigned long long RookTakes(pair<pair<array<unsigned long long, 16>, multiset<u
 
 
 
-unsigned long long QueenTakes(pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>, pair<array<int, 3>, unsigned long long>> position, int square){
+unsigned long long QueenTakes(const pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>, pair<array<int, 3>, unsigned long long>>& position, int square){
   return BishopTakes(position, square) | RookTakes(position, square);
 }
 
 
 
-unsigned long long KingTakes(pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>, pair<array<int, 3>, unsigned long long>> position, int square){
+unsigned long long KingTakes(const pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>, pair<array<int, 3>, unsigned long long>>& position, int square){
   return king_moves[square] & position.first.first[13 + ((position.first.first[12] >> 4) & 1ULL)];
 }
 
@@ -909,7 +913,7 @@ pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>, pair<arr
 
 
 
-int GetSmallestAttacker(pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>, pair<array<int, 3>, unsigned long long>> position, int square)
+int GetSmallestAttacker(const pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>, pair<array<int, 3>, unsigned long long>>& position, int square)
 {
   int tomove = ((position.first.first[12] >> 4) & 1ULL) * (-6) + 6;
   int ans = 0, move = 0;
@@ -1075,7 +1079,7 @@ vector<int> LegalMoves(pair<pair<array<unsigned long long, 16>, multiset<unsigne
 
 
 
-bool Mate(pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>, pair<array<int, 3>, unsigned long long>> position){
+bool Mate(const pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>, pair<array<int, 3>, unsigned long long>>& position){
   int tomove = ((position.first.first[12] >> 4) & 1ULL) * (-6) + 6;
   int from, to, move;
   unsigned long long bitboard, moves;
@@ -1161,7 +1165,7 @@ bool Mate(pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>
 }
 
 
-bool notEnoughtPiece(pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>, pair<array<int, 3>, unsigned long long>> position){
+bool notEnoughtPiece(const pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>, pair<array<int, 3>, unsigned long long>>& position){
   if (position.first.first[0] | position.first.first[6]){
     return false;
   }
@@ -1327,7 +1331,7 @@ int input_move(pair<pair<array<unsigned long long, 16>, multiset<unsigned long l
 }
 
 
-double phase_solver(pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>, pair<array<int, 3>, unsigned long long>> position){
+double phase_solver(const pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>, pair<array<int, 3>, unsigned long long>>& position){
     double a = 10;
     double phase = (double)position.second.first[2] / (double)6400;
     phase = 1.0 / (1.0 + exp(-a * (phase - 0.5)));
@@ -1353,7 +1357,7 @@ const array<int, 9> DubledTableEndgame  = {  0,   0,  34, 130, 234, 351, 481, 62
 const array<int, 8> PassingTable = {0, 10, 30, 40, 70, 90, 105, 0};
 const array<array<int, 9>, 2> DubledTable = {DubledTableOppening, DubledTableEndgame};
 
-int Evaluation(pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>, pair<array<int, 3>, unsigned long long>> position){
+int Evaluation(const pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>, pair<array<int, 3>, unsigned long long>>& position){
   if (notEnoughtPiece(position)){return 0;}
   double phase = phase_solver(position);
   int evaluation = position.second.first[0] * phase + position.second.first[1] * (1.0 - phase);
@@ -1469,7 +1473,7 @@ int maxx(int a, int b){
 }
 
 
-int SEE(pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>, pair<array<int, 3>, unsigned long long>> position, int square, int piece, int depth)
+int SEE(const pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>, pair<array<int, 3>, unsigned long long>>& position, int square, int piece, int depth)
 {
   DEPTH = maxx(DEPTH, depth);
   int move = GetSmallestAttacker(position, square);
@@ -1479,7 +1483,7 @@ int SEE(pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>, 
 }
 
 
-int QuiescenceSearch(pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>, pair<array<int, 3>, unsigned long long>> position, int depth, int alpha = INF + 1){
+int QuiescenceSearch(const pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>, pair<array<int, 3>, unsigned long long>>& position, int depth, int alpha = INF + 1){
   int my_best_move = 0;
   DEPTH = maxx(DEPTH, depth);
   unsigned long long hash_of_position = position.second.second;
@@ -1512,7 +1516,7 @@ int QuiescenceSearch(pair<pair<array<unsigned long long, 16>, multiset<unsigned 
 }
 
 
-int Rate(pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>, pair<array<int, 3>, unsigned long long>> position, int recursion, int depth, int alpha, int premove = -1, bool root = false) // rate position and choose best move
+int Rate(const pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>, pair<array<int, 3>, unsigned long long>>& position, int recursion, int depth, int alpha, int premove = -1, bool root = false) // rate position and choose best move
 {
   int my_best_move = 0;
   DEPTH = maxx(DEPTH, depth);
@@ -1563,7 +1567,8 @@ int Rate(pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>,
       if ((double)(clock() - start) / CLOCKS_PER_SEC > time_for_move_out) {if (rate == -INF * 3 * tomove){rate = final_rate;}
         hash_table[hash_of_position] = rate + (1 << 23) + ((recursion + 1) << 24); return rate;}
       if ((rate - rate_now) * tomove < 0) {rate = rate_now; my_best_move = move; if (root) {best_move = move;}}
-      moves[i].first = -rate_now * tomove;
+      moves[i].first = -rate_now * tomove - (history_evr[(tomove + 1) / 2][move & 63][(move >> 6) & 63] +
+      (counterMove[premove & 63][(premove >> 6) & 63] == move ? 100 : 0)) / 15;
       if (rec == recursion and (rate - alpha) * tomove > 0) {
         if (not(position.first.first[13.5 + 0.5 * tomove] & one_mask[(move >> 6) & 63])){
           history_evr[(tomove + 1) / 2][move & 63][(move >> 6) & 63] += recursion * recursion;
@@ -1583,13 +1588,14 @@ int Rate(pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>,
   return rate;
 }
 
-int RateThePosition(pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>, pair<array<int, 3>, unsigned long long>> position, int recursion = 64){
+int RateThePosition(const pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>, pair<array<int, 3>, unsigned long long>>& position, int recursion = 64){
   hash_table.clear();
   for (int i = 0; i < 2; i++) {for (int j = 0; j < 64; j++) {fill(history_evr[i][j].begin(), history_evr[i][j].end(), 0);}}
   for (int j = 0; j < 64; j++) {fill(counterMove[j].begin(), counterMove[j].end(), -1);}
   start = clock();
   return Rate(position, recursion, 0, INF + 1, -1, true);
 }
+
 
 void print_first_line(pair<pair<array<unsigned long long, 16>, multiset<unsigned long long>>, pair<array<int, 3>, unsigned long long>> position){
   auto hash_of_position = position.second.second;
@@ -1624,6 +1630,7 @@ void time_tester(long long N){
 
 //FEN: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0
 int main(){
+  hash_table.max_load_factor(0.25);
   string FEN;
   getline(cin, FEN);
   string mode;
@@ -1672,6 +1679,8 @@ int main(){
       //print_move(h);
       //print_position(position);
     }
+
+    vector<int> legals = LegalMoves(position);
 
     int rate = RateThePosition(position, d);
     //if (s == "time") {while ((double)(clock() - start) / CLOCKS_PER_SEC < time_for_move){}}
